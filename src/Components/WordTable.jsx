@@ -6,19 +6,19 @@ const WordTable = ({ words, setWords }) => {
   const [newWord, setNewWord] = useState({ word: '', translation: '' }); 
   const [tempWord, setTempWord] = useState({ word: '', translation: '' }); 
 
-  // Rediģēšanas funkcija
+  
   const handleEdit = (id) => {
     setEditing(id);
     const wordToEdit = words.find(word => word.id === id);
     setTempWord({ word: wordToEdit.english, translation: wordToEdit.russian });
   };
 
-  // Dzēst vārdu
+ 
   const handleDelete = (id) => {
     setWords(words.filter(word => word.id !== id));
   };
 
-  // Saglabāt izmaiņas
+ 
   const handleSave = (id) => {
     const updatedWords = words.map(word =>
       word.id === id ? { ...word, english: tempWord.word, russian: tempWord.translation } : word
@@ -27,25 +27,25 @@ const WordTable = ({ words, setWords }) => {
     setEditing(null);
   };
 
-  // Atcelt rediģēšanu
+
   const handleCancel = () => {
     setEditing(null);
     setTempWord({ word: '', translation: '' });
   };
 
-  // Funkcija, lai pievienotu jaunu vārdu
+  
   const handleAddWord = () => {
     if (newWord.word && newWord.translation) {
-      const newId = Date.now().toString(); // Jauns unikāls ID
+      const newId = Date.now().toString(); 
       const newWordObject = { id: newId, english: newWord.word, russian: newWord.translation };
       setWords([...words, newWordObject]);
-      setNewWord({ word: '', translation: '' }); // Atjaunot formu
+      setNewWord({ word: '', translation: '' }); 
     }
   };
 
   return (
     <>
-      {/* Jaunu vārdu pievienošanas forma */}
+      {}
       <div className={styles.addWordForm}>
         <input
           type="text"
@@ -59,16 +59,16 @@ const WordTable = ({ words, setWords }) => {
           placeholder="Tulkojums"
           onChange={(e) => setNewWord({ ...newWord, translation: e.target.value })}
         />
-        <button onClick={handleAddWord}>Pievienot vārdu</button>
+        <button onClick={handleAddWord}>добавить имя</button>
       </div>
 
-      {/* Tabula */}
+      {}
       <table className={styles.wordTable}>
         <thead>
           <tr>
-            <th>Angļu vārds</th>
-            <th>Tulkojums</th>
-            <th>Akcijas</th>
+            <th>Английский</th>
+            <th>Перевод</th>
+            <th>Акции</th>
           </tr>
         </thead>
         <tbody>
@@ -99,13 +99,13 @@ const WordTable = ({ words, setWords }) => {
               <td>
                 {editing === word.id ? (
                   <>
-                    <button onClick={() => handleSave(word.id)}>Saglabāt</button>
-                    <button onClick={handleCancel}>Atcelt</button>
+                    <button onClick={() => handleSave(word.id)}>Сохранить</button>
+                    <button onClick={handleCancel}>Отменить</button>
                   </>
                 ) : (
                   <>
-                    <button onClick={() => handleEdit(word.id)}>Rediģēt</button>
-                    <button onClick={() => handleDelete(word.id)}>Dzēst</button>
+                    <button onClick={() => handleEdit(word.id)}>Исправить</button>
+                    <button onClick={() => handleDelete(word.id)}>Удалить</button>
                   </>
                 )}
               </td>
