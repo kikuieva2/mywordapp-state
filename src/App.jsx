@@ -3,6 +3,7 @@ import './App.css'
 import Header from './Components/Header';
 import Footer from './Components/Footer';
 import WordTable from './Components/WordTable';
+import WordCardList from "../Components/WordCardList";
 
 function App() {
   const [words,setWords]= useState([
@@ -34,6 +35,7 @@ function App() {
     <Header/>
     <Footer/>
     <WordTable words={words} setWords={setWords} />
+    <WordCardList words={words} defaultIndex={0} />
     </>
   )
 }
