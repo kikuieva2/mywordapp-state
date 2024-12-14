@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import './App.css'
-import Header from './Components/Header';
-import Footer from './Components/Footer';
-import WordTable from './Components/WordTable';
-import WordCardList from "../Components/WordCardList";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Menu from "./Components/Menu";
+import WordTable from "./Components/WordTable";
+import WordCardList from "./Components/WordCardList";
+import "./App.css";
 
 function App() {
   const [words,setWords]= useState([
@@ -30,14 +30,20 @@ function App() {
     {"id":"32887","english":"treat","transcription":"[ triːt ]","russian":"угощение","tags":"halloween","tags_json":"[\"halloween\"]"},
     {"id":"32891","english":"test","transcription":"test","russian":"test","tags":"test","tags_json":"[\"test\"]"}]
 ]);
-  return (
-    <>
-    <Header/>
-    <Footer/>
-    <WordTable words={words} setWords={setWords} />
-    <WordCardList words={words} defaultIndex={0} />
-    </>
-  )
+return (
+  <Router>
+    <div className="App">
+      <Menu />
+      <Routes>
+        {/* Главная страница */}
+        <Route path="/" element={<WordTable words={words} setWords={setWords} />} />
+        
+        {/* Страница с карточками */}
+        <Route path="/game" element={<WordCardList words={words} />} />
+      </Routes>
+    </div>
+  </Router>
+);
 }
 
 export default App
