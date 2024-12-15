@@ -1,26 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/WordCardList.module.css";
 
 const WordCardList = ({ words = [], defaultIndex = 0 }) => {
-  const [currentIndex, setCurrentIndex] = useState(
-    defaultIndex < words.length ? defaultIndex : 0
-  );
-  const [studiedWords, setStudiedWords] = useState(0); // Состояние для изученных слов
+  const [currentIndex, setCurrentIndex] = useState(defaultIndex);
+  const [learnedCount, setLearnedCount] = useState(0);
+  const translateButtonRef = useRef(null);
+
+  useEffect(() => {
+    // Фокус на кнопке "Посмотреть перевод" при смене карточки
+    if (translateButtonRef.current) {
+      translateButtonRef.current.focus();
+    }
+  }, [currentIndex]);
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex < words.length - 1 ? prevIndex + 1 : 0
-    );
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
   };
 
   const handlePrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : words.length - 1
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + words.length) % words.length
     );
   };
 
-  const incrementStudiedWords = () => {
-    setStudiedWords((prevCount) => prevCount + 1);
+  const handleShowTranslation = () => {
+    alert(`Перевод: ${words[currentIndex].russian}`);
+    setLearnedCount((prevCount) => prevCount + 1);
   };
 
   if (words.length === 0) {
@@ -31,38 +36,22 @@ const WordCardList = ({ words = [], defaultIndex = 0 }) => {
 
   return (
     <div className={styles.wordCardContainer}>
-      <h2>Изучено слов: {studiedWords}</h2> {/* Отображение количества изученных слов */}
       <div className={styles.wordCard}>
-        <WordCard
-          word={currentWord}
-          onShowTranslation={incrementStudiedWords} // Передаем функцию
-        />
+        <h3>{currentWord.english}</h3>
+        <p>{currentWord.transcription}</p>
+        <button
+          ref={translateButtonRef}
+          className={styles.showTranslation}
+          onClick={handleShowTranslation}
+        >
+          Посмотреть перевод
+        </button>
       </div>
       <div className={styles.navigation}>
         <button onClick={handlePrevious}>← Предыдущее</button>
         <button onClick={handleNext}>Следующее →</button>
       </div>
-    </div>
-  );
-};
-
-const WordCard = ({ word, onShowTranslation }) => {
-  const [showTranslation, setShowTranslation] = useState(false);
-
-  const handleShowTranslation = () => {
-    setShowTranslation(true);
-    onShowTranslation(); // Увеличение счётчика
-  };
-
-  return (
-    <div className={styles.wordCard}>
-      <h3>{word.english}</h3>
-      <p>{word.transcription}</p>
-      {!showTranslation ? (
-        <button onClick={handleShowTranslation}>Посмотреть перевод</button>
-      ) : (
-        <p>{word.russian}</p>
-      )}
+      <p>Изучено слов: {learnedCount}</p>
     </div>
   );
 };
