@@ -1,75 +1,136 @@
-import React, { useState } from "react";
-import styles from "../styles/WordTable.module.css";
+import React, { useState } from 'react';
+import styles from '../styles/WordTable.module.css';
 
 const WordTable = ({ words, setWords }) => {
   const [editing, setEditing] = useState(null);
-  const [newWord, setNewWord] = useState({ word: "", translation: "", transcription: "" });
-  const [tempWord, setTempWord] = useState({ word: "", translation: "", transcription: "" });
+  const [newWord, setNewWord] = useState({ word: '', translation: '' });
+  const [tempWord, setTempWord] = useState({ word: '', translation: '' });
+  const [errors, setErrors] = useState({ word: false, translation: false });
 
-  const handleAddWord = () => {
-    if (newWord.word && newWord.translation && newWord.transcription) {
-      const newWordObject = {
-        id: Date.now().toString(),
-        english: newWord.word,
-        russian: newWord.translation,
-        transcription: newWord.transcription,
-      };
-      setWords([...words, newWordObject]);
-      setNewWord({ word: "", translation: "", transcription: "" });
-    }
+  const handleEdit = (id) => {
+    setEditing(id);
+    const wordToEdit = words.find(word => word.id === id);
+    setTempWord({ word: wordToEdit.english, translation: wordToEdit.russian });
   };
 
   const handleDelete = (id) => {
-    setWords(words.filter((word) => word.id !== id));
+    setWords(words.filter(word => word.id !== id));
+  };
+
+  const handleSave = (id) => {
+    // Проверка на пустые поля
+    if (tempWord.word === '' || tempWord.translation === '') {
+      setErrors({
+        word: tempWord.word === '',
+        translation: tempWord.translation === ''
+      });
+      alert('Пожалуйста, заполните все поля.');
+      return;
+    }
+
+   
+    const updatedWords = words.map(word =>
+      word.id === id ? { ...word, english: tempWord.word, russian: tempWord.translation } : word
+    );
+    setWords(updatedWords);
+    setEditing(null);
+    setErrors({ word: false, translation: false }); 
+  };
+
+  const handleCancel = () => {
+    setEditing(null);
+    setTempWord({ word: '', translation: '' });
+  };
+
+  const handleAddWord = () => {
+    if (newWord.word && newWord.translation) {
+      const newId = Date.now().toString();
+      const newWordObject = { id: newId, english: newWord.word, russian: newWord.translation };
+      setWords([...words, newWordObject]);
+      setNewWord({ word: '', translation: '' });
+    } else {
+      alert('Пожалуйста, заполните все поля.');
+    }
   };
 
   return (
-    <div className={styles.wordTableContainer}>
+    <>
       <div className={styles.addWordForm}>
         <input
           type="text"
-          placeholder="Английское слово"
           value={newWord.word}
+          placeholder="Angļu vārds"
           onChange={(e) => setNewWord({ ...newWord, word: e.target.value })}
+          className={newWord.word === '' ? styles.errorInput : ''}
         />
         <input
           type="text"
-          placeholder="Перевод"
           value={newWord.translation}
+          placeholder="Tulkojums"
           onChange={(e) => setNewWord({ ...newWord, translation: e.target.value })}
+          className={newWord.translation === '' ? styles.errorInput : ''}
         />
-        <input
-          type="text"
-          placeholder="Транскрипция"
-          value={newWord.transcription}
-          onChange={(e) => setNewWord({ ...newWord, transcription: e.target.value })}
-        />
-        <button onClick={handleAddWord}>Добавить</button>
+        <button onClick={handleAddWord}>добавить слово</button>
       </div>
 
       <table className={styles.wordTable}>
         <thead>
           <tr>
-            <th>Английское слово</th>
+            <th>Английский</th>
             <th>Перевод</th>
-            <th>Транскрипция</th>
-            <th>Действия</th>
+            <th>Акции</th>
           </tr>
         </thead>
         <tbody>
           {words.map((word) => (
             <tr key={word.id}>
-              <td>{word.english}</td>
-              <td>{word.russian}</td>
-              <td>{word.transcription}</td>
               <td>
-                <button onClick={() => handleDelete(word.id)}>Удалить</button>
+                {editing === word.id ? (
+                  <input
+                    type="text"
+                    value={tempWord.word}
+                    onChange={(e) => setTempWord({ ...tempWord, word: e.target.value })}
+                    className={errors.word ? styles.errorInput : ''}
+                  />
+                ) : (
+                  word.english
+                )}
+              </td>
+              <td>
+                {editing === word.id ? (
+                  <input
+                    type="text"
+                    value={tempWord.translation}
+                    onChange={(e) => setTempWord({ ...tempWord, translation: e.target.value })}
+                    className={errors.translation ? styles.errorInput : ''}
+                  />
+                ) : (
+                  word.russian
+                )}
+              </td>
+              <td>
+                {editing === word.id ? (
+                  <>
+                    <button
+                      onClick={() => handleSave(word.id)}
+                      disabled={tempWord.word === '' || tempWord.translation === ''}
+                    >
+                      Сохранить
+                    </button>
+                    <button onClick={handleCancel}>Отменить</button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => handleEdit(word.id)}>Исправить</button>
+                    <button onClick={() => handleDelete(word.id)}>Удалить</button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </>
   );
 };
 

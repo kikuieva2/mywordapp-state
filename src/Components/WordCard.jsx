@@ -3,20 +3,18 @@ import styles from "../styles/WordCard.module.css";
 
 const WordCard = ({ word, onShowTranslation }) => {
   const [isTranslationVisible, setTranslationVisible] = useState(false);
-  const buttonRef = useRef(null); // Для фокуса на кнопке
+  const buttonRef = useRef(null); // Ссылка на кнопку для фокуса
 
-  // Устанавливаем фокус на кнопку при рендеринге
+  // Устанавливаем фокус на кнопку при рендере карточки
   useEffect(() => {
     if (buttonRef.current) {
       buttonRef.current.focus();
     }
-  }, [word]);
+  }, [word]); // Перерендер будет происходить при изменении word
 
   const handleShowTranslation = () => {
-    if (!isTranslationVisible) {
-      setTranslationVisible(true);
-      onShowTranslation(); // Сообщаем родителю об изучении слова
-    }
+    setTranslationVisible(true);
+    onShowTranslation(); // Уведомляем родителя об изучении слова
   };
 
   return (
