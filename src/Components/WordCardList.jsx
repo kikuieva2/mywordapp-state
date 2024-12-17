@@ -1,51 +1,44 @@
-import React, { useState, useEffect, useRef } from "react";
-import words from "../data/words.json"; 
+import React, { useState } from "react";
 import styles from "../styles/WordCardList.module.css";
+import WordCard from "./WordCard"; 
 
-const WordCardList = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTranslationVisible, setTranslationVisible] = useState(false);
-  const translationButtonRef = useRef(null); // Для установки фокуса
+const WordCardList = ({ words = [], defaultIndex = 0 }) => {
+  const [currentIndex, setCurrentIndex] = useState(defaultIndex < words.length ? defaultIndex : 0);
+  const [studiedWords, setStudiedWords] = useState([]); 
+  const [studiedCount, setStudiedCount] = useState(0); // Счетчик изученных слов
 
-  // Установка фокуса при смене карточки
-  useEffect(() => {
-    setTranslationVisible(false); // Скрываем перевод при новой карточке
-    if (translationButtonRef.current) {
-      translationButtonRef.current.focus();
+  const handleShowTranslation = (id) => {
+    if (!studiedWords.includes(id)) {
+      setStudiedWords([...studiedWords, id]); // Добавляем ID в изученные
+      setStudiedCount(studiedCount + 1); // Увеличиваем счетчик
     }
-  }, [currentIndex]);
+  };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
+    setCurrentIndex((prevIndex) => (prevIndex < words.length - 1 ? prevIndex + 1 : 0));
   };
 
   const handlePrevious = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + words.length) % words.length);
+    setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : words.length - 1));
   };
 
-  const toggleTranslation = () => {
-    setTranslationVisible(!isTranslationVisible);
-  };
+  if (words.length === 0) {
+    return <p>Список слов пуст. Добавьте слова для отображения.</p>;
+  }
 
   const currentWord = words[currentIndex];
 
   return (
     <div className={styles.wordCardContainer}>
-      <div className={styles.wordCard}>
-        <h3>{currentWord.english}</h3>
-        <p>{currentWord.transcription}</p>
-        <button
-          ref={translationButtonRef} // Устанавливаем фокус
-          className={styles.showTranslation}
-          onClick={toggleTranslation}
-        >
-          {isTranslationVisible ? currentWord.russian : "Показать перевод"}
-        </button>
-      </div>
+      <WordCard
+        word={currentWord}
+        onShowTranslation={() => handleShowTranslation(currentWord.id)}
+      />
       <div className={styles.navigation}>
         <button onClick={handlePrevious}>← Предыдущее</button>
         <button onClick={handleNext}>Следующее →</button>
       </div>
+      <p>Изучено слов за тренировку: {studiedCount}</p>
     </div>
   );
 };

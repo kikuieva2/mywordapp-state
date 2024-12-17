@@ -2,32 +2,34 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "../styles/WordCard.module.css";
 
 const WordCard = ({ word, onShowTranslation }) => {
-  const [showTranslation, setShowTranslation] = useState(false);
-  const buttonRef = useRef(null); // Создаем ссылку на кнопку
+  const [isTranslationVisible, setTranslationVisible] = useState(false);
+  const buttonRef = useRef(null); // Для фокуса на кнопке
 
+  // Устанавливаем фокус на кнопку при рендеринге
   useEffect(() => {
-    setShowTranslation(false); // Сбрасываем состояние при смене карточки
     if (buttonRef.current) {
-      buttonRef.current.focus(); // Устанавливаем фокус на кнопку
+      buttonRef.current.focus();
     }
-  }, [word]); // Запускаем эффект при изменении слова
+  }, [word]);
 
   const handleShowTranslation = () => {
-    setShowTranslation(true);
-    onShowTranslation(); // Увеличение счётчика
+    if (!isTranslationVisible) {
+      setTranslationVisible(true);
+      onShowTranslation(); // Сообщаем родителю об изучении слова
+    }
   };
 
   return (
     <div className={styles.wordCard}>
       <h3>{word.english}</h3>
       <p>{word.transcription}</p>
-      {!showTranslation ? (
-        <button ref={buttonRef} onClick={handleShowTranslation}>
-          Посмотреть перевод
-        </button>
-      ) : (
-        <p>{word.russian}</p>
-      )}
+      <button
+        ref={buttonRef}
+        className={styles.showTranslation}
+        onClick={handleShowTranslation}
+      >
+        {isTranslationVisible ? word.russian : "Показать перевод"}
+      </button>
     </div>
   );
 };
