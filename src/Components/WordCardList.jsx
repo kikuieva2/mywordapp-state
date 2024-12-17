@@ -1,32 +1,37 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../styles/WordCardList.module.css";
 
 const WordCardList = ({ words = [], defaultIndex = 0 }) => {
-  const [currentIndex, setCurrentIndex] = useState(defaultIndex);
-  const [learnedCount, setLearnedCount] = useState(0);
-  const translateButtonRef = useRef(null);
-
-  useEffect(() => {
-    // Фокус на кнопке "Посмотреть перевод" при смене карточки
-    if (translateButtonRef.current) {
-      translateButtonRef.current.focus();
-    }
-  }, [currentIndex]);
+  const [currentIndex, setCurrentIndex] = useState(
+    defaultIndex < words.length ? defaultIndex : 0
+  );
+  const [isTranslationVisible, setTranslationVisible] = useState(false); // Состояние для отображения перевода
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
+    setCurrentIndex((prevIndex) =>
+      prevIndex < words.length - 1 ? prevIndex + 1 : 0
+    );
+    setTranslationVisible(false); // Скрываем перевод при смене карточки
   };
 
   const handlePrevious = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + words.length) % words.length
+    setCurrentIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : words.length - 1
     );
+    setTranslationVisible(false); // Скрываем перевод при смене карточки
   };
 
-  const handleShowTranslation = () => {
-    alert(`Перевод: ${words[currentIndex].russian}`);
-    setLearnedCount((prevCount) => prevCount + 1);
+  const toggleTranslation = () => {
+    setTranslationVisible(!isTranslationVisible);
   };
+
+  useEffect(() => {
+    // Устанавливаем фокус на кнопку "Показать перевод" при смене карточки
+    const button = document.getElementById("showTranslationButton");
+    if (button) {
+      button.focus();
+    }
+  }, [currentIndex]);
 
   if (words.length === 0) {
     return <p>Список слов пуст. Добавьте слова для отображения.</p>;
@@ -40,18 +45,17 @@ const WordCardList = ({ words = [], defaultIndex = 0 }) => {
         <h3>{currentWord.english}</h3>
         <p>{currentWord.transcription}</p>
         <button
-          ref={translateButtonRef}
+          id="showTranslationButton"
           className={styles.showTranslation}
-          onClick={handleShowTranslation}
+          onClick={toggleTranslation}
         >
-          Посмотреть перевод
+          {isTranslationVisible ? currentWord.russian : "Показать перевод"}
         </button>
       </div>
       <div className={styles.navigation}>
         <button onClick={handlePrevious}>← Предыдущее</button>
         <button onClick={handleNext}>Следующее →</button>
       </div>
-      <p>Изучено слов: {learnedCount}</p>
     </div>
   );
 };
