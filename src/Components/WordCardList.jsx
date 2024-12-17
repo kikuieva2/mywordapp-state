@@ -1,41 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import words from "../data/words.json"; 
 import styles from "../styles/WordCardList.module.css";
 
-const WordCardList = ({ words = [], defaultIndex = 0 }) => {
-  const [currentIndex, setCurrentIndex] = useState(
-    defaultIndex < words.length ? defaultIndex : 0
-  );
-  const [isTranslationVisible, setTranslationVisible] = useState(false); // Состояние для отображения перевода
+const WordCardList = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTranslationVisible, setTranslationVisible] = useState(false);
+  const translationButtonRef = useRef(null); // Для установки фокуса
+
+  // Установка фокуса при смене карточки
+  useEffect(() => {
+    setTranslationVisible(false); // Скрываем перевод при новой карточке
+    if (translationButtonRef.current) {
+      translationButtonRef.current.focus();
+    }
+  }, [currentIndex]);
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex < words.length - 1 ? prevIndex + 1 : 0
-    );
-    setTranslationVisible(false); // Скрываем перевод при смене карточки
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
   };
 
   const handlePrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : words.length - 1
-    );
-    setTranslationVisible(false); // Скрываем перевод при смене карточки
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + words.length) % words.length);
   };
 
   const toggleTranslation = () => {
     setTranslationVisible(!isTranslationVisible);
   };
-
-  useEffect(() => {
-    // Устанавливаем фокус на кнопку "Показать перевод" при смене карточки
-    const button = document.getElementById("showTranslationButton");
-    if (button) {
-      button.focus();
-    }
-  }, [currentIndex]);
-
-  if (words.length === 0) {
-    return <p>Список слов пуст. Добавьте слова для отображения.</p>;
-  }
 
   const currentWord = words[currentIndex];
 
@@ -45,7 +35,7 @@ const WordCardList = ({ words = [], defaultIndex = 0 }) => {
         <h3>{currentWord.english}</h3>
         <p>{currentWord.transcription}</p>
         <button
-          id="showTranslationButton"
+          ref={translationButtonRef} // Устанавливаем фокус
           className={styles.showTranslation}
           onClick={toggleTranslation}
         >
